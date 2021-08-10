@@ -1,0 +1,25 @@
+---
+name: "tagged-release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  tagged-release:
+    name: "Tagged Release"
+    runs-on: "unbuntu-latest, windows-latest, macos-latest"
+    
+    steps:
+      - name: "Build"
+        run: gcc testProg.c testProg
+          echo "done building!"
+      - name: "Test"
+        run: testProg
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            target/release/mech
