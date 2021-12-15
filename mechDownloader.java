@@ -12,12 +12,12 @@ public class mechDownloader {
 
     public static void install() { //install to preset directory
         try {
-            URL assetsUrl = new URL("https://github.com/Sitheau/capstone-test/releases/latest/download/mech.zip"); //TODO: change back to mech repo not my repo lolllllll
+            URL assetsUrl = new URL("https://github.com/Sitheau/capstone-test/releases/latest/download/mech.zip"); //This link is the github the downloader targets /Author/repo name/releases
             HttpURLConnection connection = (HttpURLConnection) assetsUrl.openConnection();
             connection.setRequestProperty("Accept", "application/octet-stream");
             ReadableByteChannel uChannel = Channels.newChannel(connection.getInputStream());
             String userDir = System.getProperty("user.home") + "\\Downloads";
-            FileOutputStream foStream = new FileOutputStream(userDir + "\\mech.zip"); //default installs to user documents
+            FileOutputStream foStream = new FileOutputStream(userDir + "\\mech.zip"); //default installs to the users downloads
             FileChannel fChannel = foStream.getChannel();
             fChannel.transferFrom(uChannel, 0, Long.MAX_VALUE);
             uChannel.close();
@@ -38,7 +38,7 @@ public class mechDownloader {
         folder.delete();
     }
 
-    private static void unpack(String zipFilePath, String destDir) {
+    private static void unpack(String zipFilePath, String destDir) { //unzips target at zipFilePath into destDir, making a folder
         File dir = new File(destDir);
         // create output directory if it doesn't exist
         if(!dir.exists()) dir.mkdirs();
@@ -76,7 +76,7 @@ public class mechDownloader {
         }
     }
 
-    public static void build(double verNum) throws IOException  { //should run mech.exe broken C:\\Users\\nicca\\Documents\\Capstone\\mech_installer2
+    public static void build(double verNum) throws IOException  { //should run mech.exe
         List<String> args = new ArrayList<String>();
         args.add(System.getProperty("user.home") + "\\Downloads\\mech\\mechv0."+verNum+".exe");
         ProcessBuilder pb = new ProcessBuilder(args);
@@ -84,7 +84,7 @@ public class mechDownloader {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        URL tagUrl = new URL("https://api.github.com/repos/sitheau/capstone-test/tags"); //url for all tags
+        URL tagUrl = new URL("https://api.github.com/repos/sitheau/capstone-test/tags"); //url for all tags in the repo
 
         HttpURLConnection c = (HttpURLConnection) tagUrl.openConnection(); //GET JSON for all tags
         c.setRequestMethod("GET");
@@ -101,41 +101,41 @@ public class mechDownloader {
                 StringBuilder sb = new StringBuilder();
                 sb.append(br.readLine());
                 br.close();
-
+                //funky string manipulation to get the first tag out of the response of ALL tags, scrapes the first vX.X.X tag in the response as the latest version
                 String[] vTemp = sb.toString().split("\"", 5); //weird regex to get the latest version 
                 String[] verNum = vTemp[3].split("v0."); //get just the last 2 numbers out of v0.x.x
                 double verDouble = Double.parseDouble(verNum[1].trim()); //convernt to double to compare
 
                 File mechDirectory = new File(System.getProperty("user.home") + "\\Downloads\\mech\\"); //check if file exists
-                boolean tempExists = mechDirectory.exists(); //linear sarch to see if prefix exists
+                boolean tempExists = mechDirectory.exists();
 
                 double localTarget = 0;
                 System.out.println("latest ver " + verDouble);
 
-                if(tempExists) {
-                    File mechLocal = new File(System.getProperty("user.home") + "\\Downloads\\mech\\");
+                if(tempExists) {    //check if that directory already exists (if yes need to update)
+                    File mechLocal = new File(System.getProperty("user.home") + "\\Downloads\\mech\\"); //local mech folder in downloads holding a mechvX.X.X.exe
                     File[] listOfFiles = mechLocal.listFiles();
 
-                    for (int i = 0; i < listOfFiles.length; i++) {
+                    for (int i = 0; i < listOfFiles.length; i++) { //go through all files in the local mech folder
                         if (listOfFiles[i].isFile()) {
                             listOfFiles[i].getName();
                         } else if (listOfFiles[i].isDirectory()) {
                             listOfFiles[i].getName();
                         }
                     }
-                    String[] localVerNum = listOfFiles[0].getName().split("v0.");
+                    String[] localVerNum = listOfFiles[0].getName().split("v0."); //String manipulation to get the version number from the file name
                     String[] tempTarget = localVerNum[1].split(".exe");
                     localTarget = Double.parseDouble(tempTarget[0]);
                     System.out.println("local ver " + localTarget);
 
-                    if(verDouble > localTarget) { //TODO: replace 0.4 with read local version
+                    if(verDouble > localTarget) { //checks latest tag verDouble vs local version localTarget
                         String mechPath = System.getProperty("user.home") + "\\Downloads\\mech";
                         File mechFolder = new File(mechPath); //assign var to mech folder location
                         System.out.println("updating");
 
-                        install(); //add check for successful install
-                        delete(mechFolder); //deletes old mech folder i think
-                        unpack(System.getProperty("user.home") + "\\Downloads\\mech.zip", System.getProperty("user.home") + "\\Downloads\\mech");
+                        install();
+                        delete(mechFolder);
+                        unpack(System.getProperty("user.home") + "\\Downloads\\mech.zip", System.getProperty("user.home") + "\\Downloads\\mech"); //unzip to new mechfolder in downloads
                         build(verDouble);
                         System.out.println("success");
                     } else {
@@ -154,9 +154,3 @@ public class mechDownloader {
         }
     }
 }
-
-//TODO: GUI lets user specify install location
-//TODO: changes for lek version
-//      change install location (need to move folders into steam ones)
-//      change github sided version detector to whatever tag system EAP will use
-//      get EAP to make releases in 7zip
