@@ -1,4 +1,4 @@
-How the installer works
+How the installer works WINDOWS ONLY
     connect with github and scrape the list of all tags, the first being the latest
     the string is trimmed so we only get the latest tags version number as a string like v0.0.5
     trim this again down to just a number like 0.5 to be able to compare numerically
