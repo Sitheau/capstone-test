@@ -15,3 +15,4 @@ How the releases work
     inside this zip is a mechvX.X.X.exe that has the file name match the version number of the tag
 
 ignore testprog.c and the workflows section
+the releases tab is meant to simulate mech releases, code for the installer is not included in the releases
